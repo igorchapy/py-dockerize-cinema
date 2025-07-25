@@ -34,3 +34,5 @@ volumes:
   postgres_data:
   static_volume:
   media_volume:
+
+command: python manage.py runserver 0.0.0.0:8000
