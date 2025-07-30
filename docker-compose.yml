@@ -1,38 +1,21 @@
 version: '3.9'
 
 services:
-  db:
-    image: postgres:15
+  web:
+    build: .
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_DB=cinema
-      - POSTGRES_USER=cinema_user
-      - POSTGRES_PASSWORD=cinema_pass
-    ports:
-      - "5432:5432"
-
-  app:
-    build:
-      context: .
-    volumes:
-      - ./app:/usr/src/app
-      - static_volume:/usr/src/app/static
-      - media_volume:/usr/src/app/media
+      - static_volume:/app/static
+      - media_volume:/app/media
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
     depends_on:
       - db
-    environment:
-      - DB_NAME=cinema
-      - DB_USER=cinema_user
-      - DB_PASSWORD=cinema_pass
-      - DB_HOST=db
-      - DB_PORT=5432
 
 volumes:
-  postgres_data:
   static_volume:
   media_volume:
-
-command: python manage.py python manage.py wait_for_db
